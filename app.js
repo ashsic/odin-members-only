@@ -8,6 +8,8 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const dotenv = require('dotenv').config();
 
+// DB
+
 const mongoDb = process.env.DB_URL;
 mongoose.connect(mongoDb);
 const db = mongoose.connection;
@@ -25,6 +27,8 @@ const User = mongoose.model(
     status: { type: Boolean, required: true }
   })
 );
+
+// Middleware
 
 const app = express();
 app.set('views', 'views');
@@ -65,8 +69,16 @@ passport.deserializeUser(async (id, done) => {
   };
 });
 
+// Routes
 
+app.get("/", (req, res) => {
+  res.render("index", { user: req.user });
+});
 
+app.get("/signup", (req, res) => res.render("signup"));
 
+app.get("/login", (req, res) => res.render("login"));
+
+// Listen
 
 app.listen(3000, () => console.log("app listening on port 3000!"));
