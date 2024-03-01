@@ -22,7 +22,7 @@ const User = mongoose.model(
       firstName: { type: String, required: true },
       lastName: { type: String, required: true }
     },
-    userName: { type: String, required: true },
+    username: { type: String, required: true },
     password: { type: String, required: true },
     status: { type: Boolean, required: true }
   })
@@ -77,7 +77,47 @@ app.get("/", (req, res) => {
 
 app.get("/signup", (req, res) => res.render("signup"));
 
+app.post('/signup', async (req, res, next) => {
+  try {
+    bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
+      if (err) {
+        throw new Error(err);
+      };
+      const user = new User({
+        fullName: {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+        },
+        username: req.body.username,
+        password: hashedPassword,
+        status: false
+      });
+      const result = await user.save();
+    });
+    res.redirect('/');
+  } catch(err) {
+    return next(err);
+  };
+});
+
 app.get("/login", (req, res) => res.render("login"));
+
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/"
+  })
+);
+
+app.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
 
 // Listen
 
